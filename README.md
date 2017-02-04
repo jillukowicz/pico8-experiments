@@ -1,2 +1,2 @@
-# galaxy-bastards-2
-Pico 8 experimental game
+# Pico 8 carttridges  
+Pico 8 experiments
