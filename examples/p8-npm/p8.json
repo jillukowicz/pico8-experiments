@@ -5,7 +5,7 @@
   "main": "./index.lua",
   "description": "p8-npm-playground",
   "dependencies": {
-    "print": "https://raw.githubusercontent.com/clowerweb/Lib-Pico8/master/print.lua",
-    "perf": "https://raw.githubusercontent.com/jozanza/pico_modules/master/perf.moon"
+    "perf": "https://raw.githubusercontent.com/jozanza/pico_modules/master/perf.moon",
+    "smallcaps": "https://raw.githubusercontent.com/jozanza/pico_modules/master/smallcaps.lua"
   }
 }

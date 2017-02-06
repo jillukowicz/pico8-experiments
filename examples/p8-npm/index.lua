@@ -1,8 +1,11 @@
 perf = require('perf')
 printer = require('print')
+smallcaps = require('smallcaps')
 
 function _draw()
   cls()
+  print(smallcaps("jakub start "))
+  print("jakub")
   print("hello " .. perf.mem() .. " " .. perf.cpu(),10 - flr(rnd(2)),64- flr(rnd(2)))
 end
 

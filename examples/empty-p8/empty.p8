@@ -1,85 +1,16 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
--- p8-npm 0.0.1
+-- empty p8 0.0.1
 -- by jillukowicz
-require = (function(requires)
-  modules = {}
-  return function(name)
-    if not modules[name] then
-      modules[name] = requires[name]()
-    end
-    return modules[name]
-  end
-end)({
-  ['print'] = function()
-    -- taken from Star Picker-Upper by @seleb
-    -- http://www.lexaloffle.com/bbs/?tid=3432
-    
-    -- print white text with dark blue outline
-    function print_ol(s,_x,_y)
-      for x=-1,1 do
-        for y=-1,1 do
-          print(s,_x+x,_y+y,2)
-        end
-      end
-      print(s,_x,_y,8)
-    end
-    
-    -- print outline text centered
-    function print_ol_c(s,_y)
-      print_ol(s,64-#s*4/2,_y)
-    end
-  end;
-  ['perf'] = function()
-    return {
-      mem = function()
-        return stat(0)
-      end,
-      cpu = function()
-        return stat(1)
-      end
-    }
-  end;
-  ['smallcaps'] = function()
-    -- http://www.lexaloffle.com/bbs/?tid=3217
-    return function(s)
-      local d=""
-      local c
-      for i=1,#s do
-        local a=sub(s,i,i)
-        if a!="^" then
-          if not c then
-            for j=1,26 do
-              if a==sub("abcdefghijklmnopqrstuvwxyz",j,j) then
-                a=sub("\65\66\67\68\69\70\71\72\73\74\75\76\77\78\79\80\81\82\83\84\85\86\87\88\89\80\91\92",j,j)
-              end
-            end
-          end
-          d=d..a
-          c=true
-        end
-        c=not c
-      end
-      return d
-    end
-  end;
-})
-_init = function()
-  perf = require('perf')
-  printer = require('print')
-  smallcaps = require('smallcaps')
-  
+
+
   function _draw()
-    cls()
-    print(smallcaps("jakub start "))
-    print("jakub")
-    print("hello " .. perf.mem() .. " " .. perf.cpu(),10 - flr(rnd(2)),64- flr(rnd(2)))
   end
-  
+
   function _update()
   end
-end
+
 __gfx__
 
 __gff__
