@@ -12,7 +12,7 @@ require = (function(requires)
     return modules[name]
   end
 end)({
-  ['print1'] = function()
+  ['print'] = function()
     -- taken from Star Picker-Upper by @seleb
     -- http://www.lexaloffle.com/bbs/?tid=3432
     
@@ -31,11 +31,28 @@ end)({
       print_ol(s,64-#s*4/2,_y)
     end
   end;
+  ['perf'] = function()
+    return {
+      mem = function()
+        return stat(0)
+      end,
+      cpu = function()
+        return stat(1)
+      end
+    }
+  end;
 })
 _init = function()
+  perf = require('perf')
+  printer = require('print')
+  
   function _draw()
     cls()
-    print("hello",64,64)
+  
+    --print(printer.print_ol("hello", 12 ,12))
+  
+  
+    print("hello " .. perf.mem() .. " " .. perf.cpu(),10 - flr(rnd(2)),64- flr(rnd(2)))
   end
   
   function _update()
@@ -209,3 +226,4 @@ __music__
 00 41424344
 00 41424344
 00 41424344
+
