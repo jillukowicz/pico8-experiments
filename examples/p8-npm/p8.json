@@ -1,0 +1,10 @@
+{
+  "name": "p8-npm",
+  "version": "0.0.1",
+  "author": "jillukowicz",
+  "main": "./index.lua",
+  "description": "p8-npm-playground",
+  "dependencies": {
+    "print1": "https://raw.githubusercontent.com/clowerweb/Lib-Pico8/master/print.lua"
+  }
+}
