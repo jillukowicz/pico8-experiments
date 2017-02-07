@@ -5,7 +5,6 @@
   "main": "./index.lua",
   "description": "p8-npm-playground",
   "dependencies": {
-    "perf": "https://raw.githubusercontent.com/jozanza/pico_modules/master/perf.moon",
-    "smallcaps": "https://raw.githubusercontent.com/jozanza/pico_modules/master/smallcaps.lua"
+    "perf": "https://raw.githubusercontent.com/jozanza/pico_modules/master/perf.moon"
   }
 }
