@@ -1,26 +1,35 @@
 pico-8 cartridge // http://www.pico-8.com
 version 8
 __lua__
--- Galaxy Bastards 2 // by jillukowicz
+-- galaxy bastards 2 // by jillukowicz
 --
 --
--- An oldschool arcade
+-- an oldschool arcade
 -- space shooter game
 
-time=0
+--globals
+local ship={
+  sprite=1, x=50, y=50
+}
+local shots={}
+local enemies={}
+local stars={}
+local stats={
+  total_shots=0
+}
+local smokes={}
+local time
+local shot_sfx
+local explosion_sfx
+local score
 
 function _init()
-  ship={
-    sprite=1,
-    x=50,
-    y=50
-  }
-  shots={}
-  enemies=generate_enemies()
-  stars=generate_stars()
-  stats={
-    total_shots=0
-  }
+  time=0
+  shot_sfx=0
+  explosion_sfx=1
+  score=0
+  generate_enemies()
+  generate_stars()
 end
 
 function _update()
@@ -29,6 +38,8 @@ function _update()
   update_shots()
   update_enemies()
   update_stars()
+  check_shooting()
+  update_smokes()
 end
 
 function _draw()
@@ -37,23 +48,21 @@ function _draw()
   redraw_shots()
   redraw_enemies()
   redraw_stars()
-  debug_info()
+  redraw_smoke()
+  score_label()
+  print("enemies " .. #enemies, 50, 120)
 end
 
 function generate_enemies()
-  local enemies={}
   for i=1,10 do
     add(enemies, new_enemy(i))
   end
-  return enemies
 end
 
 function generate_stars()
-  local stars={}
   for i=1,128 do
     add(stars, new_star())
   end
-  return stars
 end
 
 -- updating properties
@@ -70,18 +79,31 @@ function update_shots()
   if(time%4<1) then
     if btn(4) then shot() end
   end
-  for laser_shot in all(shots) do
-    laser_shot.x+=laser_shot.dx
-    laser_shot.y+=laser_shot.dy
-    check_object_boundaries(laser_shot, shots, false)
+  for s in all(shots) do
+    s.x+=s.dx
+    s.y+=s.dy
+    check_bounds(s, shots)
   end
 end
 
 function update_enemies()
-  for enemy in all(enemies) do
-    enemy.x = enemy.r*sin(time/50) + enemy.m_x
-    enemy.y = enemy.r*cos(time/50) + enemy.m_y
-    check_object_boundaries(enemy, enemies, true)
+  for e in all(enemies) do
+    e.y+=e.s
+    --enemy.y = enemy.r*cos(time/50) + enemy.m_y
+    check_bounds(e, enemies)
+  end
+  if(#enemies==0)then
+    generate_enemies()
+  end
+end
+
+function update_smokes()
+  for s in all(smokes) do
+    if(s.r<5)then
+      s.r+=1
+    else
+      del(smokes,s)
+    end
   end
 end
 
@@ -97,6 +119,21 @@ function update_stars()
   end
 end
 
+function check_shooting()
+  for e in all(enemies) do
+    for s in all(shots) do
+      if(s.x < e.x + 8 and s.x + 1 > e.x and
+        s.y < e.y + 8 and s.y + 3 > e.y)then
+        sfx(explosion_sfx)
+        del(enemies,e)
+        del(shots,s)
+        score+=1
+        add(smokes,new_smoke(e.x+4,e.y+4))
+      end
+    end
+  end
+end
+
 -- updating properties
 
 -- redrawing each object after update of properties
@@ -105,44 +142,59 @@ function redraw_ship()
 end
 
 function redraw_shots()
-  for laser_shot in all(shots) do
-    spr(laser_shot.sprite, laser_shot.x, laser_shot.y)
+  for s in all(shots) do
+    spr(s.sprite, s.x, s.y)
   end
 end
 
 function redraw_enemies()
-  for enemy in all(enemies) do
-    spr(enemy.sprite, enemy.x, enemy.y)
+  for e in all(enemies) do
+    spr(e.sprite, e.x, e.y)
+  end
+end
+
+function redraw_smoke()
+  for s in all(smokes) do
+    circ(s.x,s.y,s.r)
   end
 end
 
 function redraw_stars()
-  for star in all(stars) do
-    if(star.t%2 == 0) then
-      circ(star.x, star.y, 5, star.c)
+  for s in all(stars) do
+    if(s.t%2 == 0) then
+      circ(s.x, s.y, 5, s.c)
     else
-      pset(star.x, star.y, star.c)
+      pset(s.x, s.y, s.c)
     end
   end
 end
 -- redrawing
 
 -- utilities
-function debug_info()
-  --print("s:" .. #shots .. " ts:" .. stats.total_shots .. " e:" .. #enemies .. " t:" .. time)
+function score_label()
+  outline("score " .. score, 5,6,3,3)
 end
 
-function check_object_boundaries(object, origin, only_bottom)
-  if only_bottom then
-    if object.y > 128 then
-      del(origin,object)
-    end
-  else
+function check_bounds(object, origin)
+  --if only_bottom then
+    --if object.y > 128 then
+      --del(origin,object)
+    --end
+  --else
     if object.x < 0 or object.x > 128 or
       object.y < 0 or object.y > 128 then
         del(origin,object)
     end
-  end
+  --end
+end
+
+function outline(s,tc,oc,x,y)
+    for i=-1,1 do
+        for j=-1,1 do
+            print(s,x+i,y+j,oc)
+        end
+    end
+    print(s,x,y,tc)
 end
 
 function check_ship_boundaries(x,y)
@@ -156,6 +208,7 @@ end
 
 function shot()
   add(shots, new_laser_shot())
+  sfx(shot_sfx)
   stats.total_shots+=1
 end
 
@@ -170,14 +223,21 @@ function new_laser_shot()
   return laser_shot
 end
 
+function new_smoke(_x,_y)
+  local smoke={
+    x=_x,
+    y=_y,
+    r=1
+  }
+  return smoke
+end
+
 function new_enemy(i)
   local enemy={
     sprite=4,
-    m_x=i*16,
-    m_y=60-i*8,
-    x=-32,
-    y=-32,
-    r=12
+    s=flr(rnd(2))+1,
+    x=2*i+8+flr(rnd(5)),
+    y=5
   }
   return enemy
 end
@@ -385,8 +445,8 @@ __map__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+000100000000000000073000b300093000a3000c2000c2000e200123001730019300193501a3501b3501d35000000000000000000000000000000000000000000000000000000000000000000000000000000000
+0005000000000000000e650176501f630346200000014600376003960026000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 001000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000

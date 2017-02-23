@@ -1,0 +1,10 @@
+{
+  "name": "p8-soccer",
+  "version": "0.0.1",
+  "author": "jillukowicz",
+  "main": "./index.lua",
+  "description": "p8-soccer",
+  "gfxDependencies": {
+    "./p8-soccer.png": "png"
+  }
+}
