@@ -1,0 +1,7 @@
+{
+  "name": "perf-killer",
+  "version": "0.0.1",
+  "author": "jillukowicz",
+  "main": "./index.lua",
+  "description": "Perf-killer"
+}
